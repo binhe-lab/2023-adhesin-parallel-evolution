@@ -1,0 +1,1 @@
+../../../01-global-adhesin-prediction/archive/script/misc/truncate_fasta.sh

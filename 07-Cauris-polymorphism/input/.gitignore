@@ -1,0 +1,4 @@
+blastdb/
+genome-seq/*
+!genome-seq/README.md
+!genome-seq/md5checksums.txt

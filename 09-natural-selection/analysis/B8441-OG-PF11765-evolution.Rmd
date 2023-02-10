@@ -1,0 +1,197 @@
+---
+title: "B8441 Hil family PF11765 domain evolution"
+author: Bin He
+date: "2022-07-07  Updated `r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
+    code_folding: hide
+---
+
+```{r}
+suppressPackageStartupMessages(require(tidyverse))
+suppressPackageStartupMessages(require(cowplot))
+suppressPackageStartupMessages(require(ggtext))
+suppressPackageStartupMessages(require(ggtree))
+suppressPackageStartupMessages(require(treeio))
+```
+
+# Goal
+
+- Infer forces of natural selection acting on the PF11765 (NTD) among the Hil homologs in _C. auris_, B8441 strain.
+- Differences between this and the previous [MDR-PF11765-evolution](./MDR-PF11765-evolution.Rmd) analysis include
+    1. Inclusion of an outgroup homolog from _M. bicuspidata_ to root the domain tree.
+    1. Apply PAML on part of the domain alignment that is inferred to be non-recombining by [GARD](https://datamonkey.org)
+
+# Approach
+
+Use PAML to estimate the branch length and omega values for the different branches in the PF11765 tree. If initial results suggest different rates / constraints among the branches, move on to perform formal hypotheses testing.
+
+To avoid making mistakes in manually writing the control files and copying values from the result files to a spreadsheet, I learned to use Biopython's PAML interface to set up a codeml object and write the settings to a control file as well as read the results.
+
+# GARD
+
+See `../output/gard/README.md` and other notes in this folder for details on how I generated the partitioned alignment and the tree for each of them.
+
+Below we plot the breakpoint support graph and the separate trees for the purpose of the 
+# Partition 1-414
+## One ratio vs free ratio
+Read in the tree files with PAML results
+```{r}
+p1.freeR.cf2 <- read.codeml_mlc("../output/paml/B8441-OG-part/p1-414/branch-freer-cf2/mlc") %>% root(outgroup = "OG")
+p1.oneR.cf2 <- read.codeml_mlc("../output/paml/B8441-OG-part/p1-414/branch-1r-cf2/mlc") %>% root(outgroup = "OG")
+p1.freeR.cf1 <- read.codeml_mlc("../output/paml/B8441-OG-part/p1-414/branch-freer-cf1/mlc") %>% root(outgroup = "OG")
+p1.oneR.cf1 <- read.codeml_mlc("../output/paml/B8441-OG-part/p1-414/branch-1r-cf1/mlc") %>% root(outgroup = "OG")
+```
+Plot the tree with omega ratios labeled for branches with high dN/dS
+```{r}
+p.cf2 <- ggtree(p1.freeR.cf2, aes(color = dN_vs_dS), size = 1, branch.length = 'none') + 
+  #geom_rootedge(rootedge = 0.1) +
+  geom_nodelab(hjust = -0.2, size = 3, color = "black") +
+  geom_tiplab(size = 6, hjust = -0.5, color = 1) + 
+  xlim(0, 5.6) +
+#  geom_text(data = td_filter(dN_vs_dS > 1),
+#            aes(x = branch, label = paste0("dN/dS>>1")), 
+#            vjust = 1.5, size = 4) + 
+#  geom_text(data = td_filter(dN_vs_dS > 1),
+#            aes(x = branch, label = paste0("dN = ", round(dN, 2), "\n", "dS = ", round(dS, 2))), 
+#            vjust = 1.2, lineheight = 0.8, size = 4) + 
+  geom_richtext(data = td_filter(node == 12), aes(x = branch, label = "FG"), 
+                fill = NA, label.color = NA, vjust = 0, size = 6, color = "red") +
+  geom_richtext(data = td_filter(node == 11), aes(x = branch, label = "FG"), 
+                fill = NA, label.color = NA, vjust = 0, size = 6, color = "red") +
+  geom_richtext(data = td_filter(node == 16), aes(x = branch, label = "FG"), 
+                fill = NA, label.color = NA, vjust = 0, size = 6, color = "red") +
+  scale_color_continuous(name='dN/dS', trans = "log10", limits=c(0.01, 10), 
+                         breaks = c(0.01, 0.1, 1, 10), labels = c("<0.01", "0.1", "1", ">10"),
+                         oob=scales::squish, low='darkgreen', high="darkviolet") +
+  theme(legend.position = c(0.1,0.8), legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 14))
+#ggsave("../output/figure/20220122-MDR-PF11765-freeR-anno-tree.png", width = 7, height = 4.5)
+```
+
+```{r}
+p.cf1 <- ggtree(p1.freeR.cf1, aes(color = dN_vs_dS), size = 1, branch.length = 'none') + 
+  #geom_rootedge(rootedge = 0.1) +
+  geom_nodelab(hjust = -0.2, size = 3, color = "black") +
+  geom_tiplab(size = 6, hjust = -0.5, color = 1) + 
+  xlim(0, 5.6) +
+#  geom_text(data = td_filter(dN_vs_dS > 1),
+#            aes(x = branch, label = paste0("dN/dS>>1")), 
+#            vjust = 1.5, size = 4) + 
+#  geom_text(data = td_filter(dN_vs_dS > 1.5),
+#            aes(x = branch, label = paste0("dN = ", signif(dN, 2), "\n", "dS = ", signif(dS, 2))), 
+#            vjust = 1.2, lineheight = 0.8, size = 4) + 
+  geom_richtext(data = td_filter(node == 12), aes(x = branch, label = "FG"), 
+                fill = NA, label.color = NA, vjust = 0, size = 6, color = "red") +
+  geom_richtext(data = td_filter(node == 13), aes(x = branch, label = "FG"), 
+                fill = NA, label.color = NA, vjust = 0, size = 6, color = "red") +
+  geom_richtext(data = td_filter(node == 16), aes(x = branch, label = "FG"), 
+                fill = NA, label.color = NA, vjust = 0, size = 6, color = "red") +
+  geom_richtext(data = td_filter(node == 9), aes(x = branch, label = "FG"), 
+                fill = NA, label.color = NA, vjust = 0, size = 6, color = "red") +
+  scale_color_continuous(name='dN/dS', trans = "log10", limits=c(0.01, 10), 
+                         breaks = c(0.01, 0.1, 1, 10), labels = c("<0.01", "0.1", "1", ">10"),
+                         oob=scales::squish, low='darkgreen', high="darkviolet") +
+  theme(legend.position = c(0.1,0.8), legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 14))
+#ggsave("../output/figure/20220122-MDR-PF11765-freeR-anno-tree.png", width = 7, height = 4.5)
+```
+```{r fig.width = 10, fig.height = 5}
+plot_grid(p.cf1 + labs(title = "CodonFreq = 1"), p.cf2 + labs(title = "CodonFreq = 2"), nrow = 1)
+ggsave(paste0("../output/figure/", gsub("-", "", Sys.Date()),"-B8441-OG-p1-414-branch-freer-tree.png"), width = 10, height = 5)
+```
+
+> In my previous analysis where I found that how I specify the codonfreq parameter has a profound effect on the branch lengths estimates. In particular, `CodonFreq=2` (F3x4) results in very large dS estimates and identified different branches as having elevated dN/dS than `CodonFreq=0/1` did. Here focusing on the 1-414 fragment, I found the inconsistencies between `CodonFreq=2` and `CodonFreq=1` are less significant. A few branches were identified as having large ω by both analyses:
+> 
+> - 12..16 (ancestral to Hil6 and Hil8)
+> - 11..12 (ancestral to Hil1, 2, 3, 4, 6 and 8)
+
+Note that `CodonFreq=2` results in a highly non-ultrametric tree
+```{r}
+ggtree(p1.freeR.cf2, aes(color = dS)) + 
+  scale_color_gradient(trans = "sqrt", breaks = c(0, 1, 10, 30, 60)) +
+  geom_tiplab(color = 1) + geom_nodelab(color = 1, size = 3, hjust = -.2)
+```
+
+This is not the case for `CodonFreq=1`
+```{r}
+ggtree(p1.freeR.cf1, aes(color = dS)) + 
+  scale_color_viridis_c(option = "D", trans = "sqrt") +
+  geom_tiplab(color = 1) + geom_nodelab(color = 1, size = 3, hjust = -.2)
+```
+
+# Partition 697-981
+## One ratio vs free ratio
+Read in the tree files with PAML results
+```{r}
+p2.freeR.cf2 <- read.codeml_mlc("../output/paml/B8441-OG-part/p697-981/branch-freer-cf2/mlc") %>% root(outgroup = "OG")
+p2.oneR.cf2 <- read.codeml_mlc("../output/paml/B8441-OG-part/p697-981/branch-1r-cf2/mlc") %>% root(outgroup = "OG")
+p2.freeR.cf1 <- read.codeml_mlc("../output/paml/B8441-OG-part/p697-981/branch-freer-cf1/mlc") %>% root(outgroup = "OG")
+p2.oneR.cf1 <- read.codeml_mlc("../output/paml/B8441-OG-part/p697-981/branch-1r-cf1/mlc") %>% root(outgroup = "OG")
+```
+Plot the tree with omega ratios labeled for branches with high dN/dS
+```{r}
+p.cf2 <- ggtree(p2.freeR.cf2, aes(color = dN_vs_dS), size = 1, branch.length = 'none') + 
+  #geom_rootedge(rootedge = 0.1) +
+  geom_nodelab(hjust = -0.2, size = 3, color = "black") +
+  geom_tiplab(size = 6, hjust = -0.5, color = 1) + 
+  xlim(0, 5.6) +
+#  geom_text(data = td_filter(dN_vs_dS > 1),
+#            aes(x = branch, label = paste0("dN/dS>>1")), 
+#            vjust = 1.5, size = 4) + 
+#  geom_text(data = td_filter(dN_vs_dS > 1),
+#            aes(x = branch, label = paste0("dN = ", round(dN, 2), "\n", "dS = ", round(dS, 2))), 
+#            vjust = 1.2, lineheight = 0.8, size = 4) + 
+  geom_richtext(data = td_filter(node %in% c(12, 13, 15, 16)), aes(x = branch, label = "FG"), 
+                fill = NA, label.color = NA, vjust = 0, size = 6, color = "red") +
+  scale_color_continuous(name='dN/dS', trans = "log10", limits=c(0.01, 10), 
+                         breaks = c(0.01, 0.1, 1, 10), labels = c("<0.01", "0.1", "1", ">10"),
+                         oob=scales::squish, low='darkgreen', high="darkviolet") +
+  theme(legend.position = c(0.1,0.8), legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 14))
+
+p.cf2 <- ggtree(p2.freeR.cf2, aes(color = dN_vs_dS), size = 1, branch.length = 'none') + 
+  #geom_rootedge(rootedge = 0.1) +
+  geom_nodelab(hjust = -0.2, size = 3, color = "black") +
+  geom_tiplab(size = 6, hjust = -0.5, color = 1) + 
+  xlim(0, 6) +
+  geom_text(data = td_filter(dN_vs_dS > 1),
+            aes(x = branch, label = paste0("ω = ", round(dN_vs_dS, 0))), 
+            vjust = -.5, size = 3) + 
+  geom_text(data = td_filter(dN_vs_dS > 1),
+            aes(x = branch, label = paste0("dN = ", round(dN, 2), "\n", "dS = ", round(dS, 2))), 
+            vjust = 1.2, lineheight = 0.8, size = 3) + 
+  #geom_richtext(data = td_filter(node == 12), aes(x = branch, label = "ω1"), 
+  #              fill = NA, label.color = NA, vjust = -0.5, size = 6, color = "red") +
+  #geom_richtext(data = td_filter(node == 11), aes(x = branch, label = "ω2"), 
+  #              fill = NA, label.color = NA, vjust = -0.5, size = 6, color = "red") +
+  #geom_richtext(data = td_filter(node == 16), aes(x = branch, label = "ω3"), 
+  #              fill = NA, label.color = NA, vjust = -0.5, size = 6, color = "red") +
+  scale_color_continuous(name='dN/dS', limits=c(0, 1.5), 
+                         oob=scales::squish, low='darkgreen', high="darkviolet") +
+  theme(legend.position = c(0.1,0.8), legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 14))
+p.cf2
+```
+
+```{r}
+p.cf1 <- ggtree(p2.freeR.cf1, aes(color = dN_vs_dS), size = 1, branch.length = 'none') + 
+  geom_nodelab(hjust = -0.2, size = 3, color = "black") +
+  geom_tiplab(size = 6, hjust = -0.5, color = 1) + 
+  xlim(0, 5.6) +
+  geom_richtext(data = td_filter(node %in% c(16, 12, 13, 14, 15)), aes(x = branch, label = "FG"), 
+                fill = NA, label.color = NA, vjust = 0, size = 6, color = "red") +
+  scale_color_continuous(name='dN/dS', trans = "log10", limits=c(0.01, 10), 
+                         breaks = c(0.01, 0.1, 1, 10), labels = c("<0.01", "0.1", "1", ">10"),
+                         oob=scales::squish, low='darkgreen', high="darkviolet") +
+  theme(legend.position = c(0.1,0.8), legend.text = element_text(size = 12), 
+        legend.title = element_text(size = 14))
+p.cf1
+```
+
+```{r fig.width = 10, fig.height = 5}
+plot_grid(p.cf1 + labs(title = "CodonFreq = 1"), p.cf2 + labs(title = "CodonFreq = 2"), nrow = 1)
+ggsave(paste0("../output/figure/", gsub("-", "", Sys.Date()),"-B8441-OG-p697-981-branch-freer-tree.png"), width = 10, height = 5)
+```
