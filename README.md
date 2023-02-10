@@ -7,4 +7,6 @@ Rachel A. Smoak*1, Lindsey F. Snyder*2, Jan S. Fassler^3, Bin Z. He^3
 Bin Z. He, bin-he@uiowa.edu
 Jan S. Fassler: jan-fassler@uiowa.edu
 
+[![DOI](https://zenodo.org/badge/600227648.svg)](https://zenodo.org/badge/latestdoi/600227648)
+
 This repository contains the analysis scripts, data and plots for the above work published in GENETICS.
