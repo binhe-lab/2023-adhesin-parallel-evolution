@@ -1,12 +1,14 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7631150.svg)](https://doi.org/10.5281/zenodo.7631150)
+
 ## Parallel Expansion and Divergence of an Adhesin Family in Pathogenic Yeasts
-Rachel A. Smoak*1, Lindsey F. Snyder*2, Jan S. Fassler^3, Bin Z. He^3
+Rachel A. Smoak<sup>*1</sup>, Lindsey F. Snyder<sup>*2</sup>, Jan S. Fassler<sup>^3</sup>, Bin Z. He<sup>^3</sup>
 
-1Civil and Environmental Engineering, the University of Iowa, Iowa City, IA 52242, US; 2Interdisciplinary Graduate Program in Genetics, the University of Iowa, Iowa City, IA 52242, US; 3Biology Department, University of Iowa, Iowa City, IA 52242, US
-*These authors contributed equally
-^Correspondence should be addressed to:
-Bin Z. He, bin-he@uiowa.edu
-Jan S. Fassler: jan-fassler@uiowa.edu
+<sup>1</sup>Civil and Environmental Engineering, the University of Iowa, Iowa City, IA 52242, US; <sup>2</sup>Interdisciplinary Graduate Program in Genetics, the University of Iowa, Iowa City, IA 52242, US; <sup>3</sup>Biology Department, University of Iowa, Iowa City, IA 52242, US
 
-[![DOI](https://zenodo.org/badge/600227648.svg)](https://zenodo.org/badge/latestdoi/600227648)
+<sup>*</sup>These authors contributed equally<br>
+<sup>^</sup>Correspondence should be addressed to:<br>
+Bin Z. He, bin-he @ uiowa.edu<br>
+Jan S. Fassler: jan-fassler @ uiowa.edu
 
-This repository contains the analysis scripts, data and plots for the above work published in GENETICS.
+This repository contains the analysis scripts, data and plots for the above work published in 
+Genetics, iyad024, <https://doi.org/10.1093/genetics/iyad024>
